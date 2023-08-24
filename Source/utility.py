@@ -1,0 +1,1 @@
+# Collection of shared generalized code, not directly related to the bot.
