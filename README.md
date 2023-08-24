@@ -1,0 +1,2 @@
+# Feynbot
+Easy Discord botting.
