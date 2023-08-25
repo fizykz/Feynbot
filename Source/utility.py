@@ -1,1 +1,1 @@
-# Collection of shared generalized code, not directly related to the bot.
+"""Collection of non-specific functions and classes."""

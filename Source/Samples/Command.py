@@ -1,1 +1,1 @@
-# Sample file showing how to construct a global command.
+"Sample file showing how to construct a global command."

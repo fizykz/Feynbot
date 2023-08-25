@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "feynbot"
+version = "1.0.0"
+description = "A smarter Discord bot."
+authors = ["Thomas Cleveland <thomaspcleveland@gmail.com>"]
+license = "MIT License"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+discord = "^2.3.2"
+numpy = "^1.25.2"
+pymongo = "^4.5.0"
+pyjson5 = "^1.6.4"
+
+[tool.poetry.group.dev.dependencies]
+rich = "^13.5.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
