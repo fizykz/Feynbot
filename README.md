@@ -1,2 +1,3 @@
 # Feynbot
-Easy Discord botting.
+
+A smarter Discord bot.

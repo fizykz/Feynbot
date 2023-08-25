@@ -1,1 +1,1 @@
-# Sample file showing how to construct a global event.
+"""Sample file showing how to construct a global event."""

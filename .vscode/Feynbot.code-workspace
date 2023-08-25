@@ -1,0 +1,20 @@
+{
+    "folders": [
+        {
+            "path": ".."
+        }
+    ],
+    "settings": {
+
+    },
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "Launch Bot",
+                "type": "shell",
+                "command": "poetry run run.py"
+            }
+        ]
+    },
+}
