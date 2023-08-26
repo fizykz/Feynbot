@@ -12,6 +12,7 @@ discord = "^2.3.2"
 numpy = "^1.25.2"
 pymongo = "^4.5.0"
 pyjson5 = "^1.6.4"
+regex = "^2023.8.8"
 
 [tool.poetry.group.dev.dependencies]
 rich = "^13.5.2"
