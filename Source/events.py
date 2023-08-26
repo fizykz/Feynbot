@@ -25,3 +25,11 @@ class Event:
     def __call__(self, bot, *args: Any, **kwargs: Any) -> Any:
         """Call the event."""
         return self.fire(self, bot, *args, **kwargs)
+
+
+class EventOverride(Event):
+    """An event override."""
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.terminal = kwargs.get("terminal", False)
+        super().__init__(*args, **kwargs)

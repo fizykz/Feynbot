@@ -2,7 +2,7 @@
 
 import sys
 
-from source.event import Event
+from source.events import Event
 
 event_name = "on_error"
 event = Event(event_name)

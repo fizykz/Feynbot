@@ -1,6 +1,6 @@
 """An empty event, consider implementing it!"""
 
-from source.event import Event
+from source.events import Event
 
 event_name = "event_name_here"
 event = Event(event_name)

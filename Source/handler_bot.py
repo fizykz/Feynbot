@@ -9,8 +9,7 @@ import regex as re
 
 from discord import Client
 
-from source.event import Event
-from source.event_override import EventOverride
+from source.events import Event, EventOverride
 
 
 EVENTS = "./source/events/"
