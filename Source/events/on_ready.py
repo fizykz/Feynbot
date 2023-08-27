@@ -1,6 +1,6 @@
 """`on_ready` event, fired when the bot is ready after launch."""
 
-from source.events import Event
+from source.event import Event
 
 event_name = "on_ready"
 event = Event(event_name)

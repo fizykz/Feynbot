@@ -1,6 +1,6 @@
 """`on_connect' event."""
 
-from source.events import Event
+from source.event import Event
 
 event_name = "on_connect"
 event = Event(event_name)

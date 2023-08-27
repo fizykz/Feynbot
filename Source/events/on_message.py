@@ -1,6 +1,6 @@
 """`on_message` event."""
 
-from source.events import Event
+from source.event import Event
 
 event_name = "on_message"
 event = Event(event_name)
