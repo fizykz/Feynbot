@@ -2,12 +2,18 @@
 
 import pyjson5 as json
 
-from source.feynbot import Feynbot
+from feynbot.bot import Feynbot
+
 
 # Load configuration
 with open("config.json", encoding="utf-8") as file:
-    config: dict = json.load(file)  # pylint: disable=no-member
+    config: dict = json.load(file)
+
+with open("intents.json", encoding="utf-8") as file:
+    config["intents"] = json.load(file)["intents"]
 
 bot = Feynbot(**config)
-# TODO: Error handling
+
+
+# IMPLEMENT: Fatal Error handling
 bot.run()

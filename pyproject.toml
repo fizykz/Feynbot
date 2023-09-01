@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "feynbot"
-version = "1.1.2"
+version = "1.2.0"
 description = "A smarter Discord bot."
 authors = ["Thomas Cleveland <thomaspcleveland@gmail.com>"]
 license = "MIT License"
@@ -13,6 +13,7 @@ numpy = "^1.25.2"
 pymongo = "^4.5.0"
 pyjson5 = "^1.6.4"
 regex = "^2023.8.8"
+anytree = "^2.9.0"
 
 [tool.poetry.group.dev.dependencies]
 rich = "^13.5.2"
