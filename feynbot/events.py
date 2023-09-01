@@ -15,7 +15,7 @@ class EventTree(NodeMixin):
         self,
         signature: Optional[str] = None,
         enabled: bool = True,
-        persistant: bool = False,
+        persistent: bool = False,
         terminal: bool = False,
         priority: int = 0,
         oid: Optional[int] = None,
@@ -31,7 +31,7 @@ class EventTree(NodeMixin):
         self.signature = signature or self.origin
         self.name = self.signature
         self.enabled = enabled
-        self.persistent = persistant
+        self.persistent = persistent
         self.terminal = terminal
         self.priority = priority
         self.events: dict[str, Collection[Event]] = {}
@@ -155,7 +155,7 @@ class Event(EventTree):
         self,
         signature: Optional[str] = None,
         enabled: bool = True,
-        persistant: bool = False,
+        persistent: bool = False,
         terminal: bool = False,
         priority: int = 0,
         oid: Optional[int] = None,
@@ -165,7 +165,7 @@ class Event(EventTree):
         super().__init__(
             signature=signature,
             enabled=enabled,
-            persistant=persistant,
+            persistent=persistent,
             terminal=terminal,
             priority=priority,
             oid=oid,
