@@ -10,7 +10,7 @@ from rich.console import Console
 from rich.traceback import install
 
 # Local
-from feynbot.handler import Handler
+from Feynbot.handler import Handler
 
 # Setup
 install()
@@ -84,4 +84,10 @@ class Feynbot(Handler, discord.Client):
 
     # Overrides
     def run(self, *args, reconnect: bool = True, **kwargs) -> None:
-        super().run(self.token, reconnect=reconnect, *args, **kwargs)
+        super().run(
+            self.token,
+            reconnect=reconnect,
+            *args,
+            log_handler=kwargs.get("log_handler", None),
+            **kwargs,
+        )

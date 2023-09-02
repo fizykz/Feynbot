@@ -2,7 +2,7 @@
 
 import pyjson5 as json
 
-from feynbot.bot import Feynbot
+from Feynbot.bot import Feynbot
 
 
 # Load configuration

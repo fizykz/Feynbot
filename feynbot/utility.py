@@ -4,7 +4,7 @@ import sys
 import pathlib
 import importlib.util
 from types import ModuleType
-from typing import Optional, Union
+from typing import Any, Optional
 
 
 class InvalidKwarg(Exception):
@@ -15,7 +15,7 @@ class InvalidKwarg(Exception):
         super().__init__(message)
 
 
-def check_kwargs(kwargs: dict) -> None:
+def check_kwargs(kwargs: dict[str, Any]) -> None:
     if len(kwargs) > 0:
         keys = ", ".join(kwargs.keys())
         raise InvalidKwarg(keys)
@@ -23,7 +23,6 @@ def check_kwargs(kwargs: dict) -> None:
 
 def import_from_path(
     path_string: str,
-    *args,
     path: Optional[pathlib.Path] = None,
     name: Optional[str] = None,
 ) -> ModuleType:
