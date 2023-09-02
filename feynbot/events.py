@@ -15,34 +15,40 @@ class EventTree(NodeMixin):
     def __init__(
         self,
         node_name: Optional[str] = None,
-        enabled: bool = True,
-        persistent: bool = False,
-        terminal: bool = False,
-        priority: int = 0,
+        enabled: Optional[bool] = None,
+        persistent: Optional[bool] = None,
+        terminal: Optional[bool] = None,
+        priority: Optional[int] = None,
         oid: Optional[int] = None,
         oids: Optional[list[int]] = None,
         **kwargs: Any,
     ) -> None:
+        # Pre-initialization
+        self.events: dict[str, list[Event]] = {}
+        self.enabled: bool = True
+        self.persistent: bool = False
+        self.terminal: bool = False
+        self.priority: int = 0
+        self.oids: list[int] = list()  # CHANGE: `oids` can be made `set[int]`
         # Construct subobject
         super().__init__()
         # Check for a parent and inherit
         parent = kwargs.pop("parent", None)
         if parent:
             self.parent_to(parent, inherit=True)
-        # Get file name of where this was defined
+        # Get file info from where this was defined
         caller_variables = currentframe().f_back.f_globals  # type: ignore
         self.origin = kwargs.pop("origin", caller_variables["__name__"])
         self.file_path = kwargs.pop("file_path", caller_variables["__file__"])
         # Set (default) attributes
         self.name: str = node_name or self.origin
-        self.signature: str = self.name + f" [{self.file_path}]"
-        self.enabled: bool = enabled
-        self.persistent: bool = persistent
-        self.terminal: bool = terminal
-        self.priority: int = priority
-        self.events: dict[str, list[Event]] = {}
+        self.signature: str = self.name
+        # self.signature: str = self.name + f" [{self.file_path}]" # Extra info
+        self.enabled: bool = enabled or self.enabled
+        self.persistent: bool = persistent or self.persistent
+        self.terminal: bool = terminal or self.terminal
+        self.priority: int = priority or self.priority
 
-        self.oids: list[int] = list()
         self.is_global: bool = True
         if oids and oid:
             raise ValueError("Cannot have both `oid` and `oids`.")
@@ -73,7 +79,7 @@ class EventTree(NodeMixin):
         oids: Optional[list[int]] = None,
         **kwargs: Any,
     ) -> Callable[[Callable], Any]:
-        # Get file where this was called
+        # Get file info from where this was defined
         caller_variables = currentframe().f_back.f_globals  # type: ignore
         origin = kwargs.pop("origin", caller_variables["__name__"])
         file_path = kwargs.pop("file_path", caller_variables["__file__"])
@@ -94,22 +100,23 @@ class EventTree(NodeMixin):
         self.parent = parent
         if inherit:
             self.inherit_from(parent)
-        for event_name, events in self.events.items():
+        for events in self.events.values():
             for event in events:
-                parent.register_event(event_name, event)
+                parent.register_event(event)
 
     def adopt_tree(self, child: "EventTree", inherit: bool = True) -> None:
         child.parent_to(self, inherit=inherit)
 
-    def register_event(
-        self, event_name: str, event: "Event", recursive: bool = True
-    ) -> None:
+    def register_event(self, event: "Event", recursive: bool = True) -> None:
+        event_name = event.event_name
+        if event_name is None:
+            raise ValueError("Event must have an event_name.")
         if event_name not in self.events:
             self.events[event_name] = list()
         self.events[event_name].append(event)
         self.sort(event_name)
         if self.parent and recursive:
-            self.parent.register_event(event_name, event)
+            self.parent.register_event(event)
 
     def inherit_from(self, node: "EventTree") -> None:
         self.enabled = node.enabled
@@ -137,7 +144,7 @@ class EventTree(NodeMixin):
         if event_name not in silenced_events and not self.has(event_name):
             silenced_events.append(event_name)
             raise IndexError(
-                f"Event {event_name} not found in {self.signature}.  This event "
+                f"Event `{event_name}` not found in `{self.signature}`.  This event "
                 f"will now be silenced."
             )
         # Silenced and not found:
@@ -175,21 +182,21 @@ class Event(EventTree):
     def __init__(
         self,
         node_name: Optional[str] = None,
-        enabled: bool = True,
-        persistent: bool = False,
-        terminal: bool = False,
-        priority: int = 0,
+        enabled: Optional[bool] = None,
+        persistent: Optional[bool] = None,
+        terminal: Optional[bool] = None,
+        priority: Optional[int] = None,
         oid: Optional[int] = None,
         oids: Optional[list[int]] = None,
         **kwargs: Any,
     ) -> None:
-        # Get file where this was called
+        # Get file info from where this was defined
         caller_variables = currentframe().f_back.f_globals  # type: ignore
         origin = kwargs.pop("origin", caller_variables["__name__"])
         file_path = kwargs.pop("file_path", caller_variables["__file__"])
         # Construct node
         super().__init__(
-            signature=node_name,
+            node_name=node_name,
             enabled=enabled,
             persistent=persistent,
             terminal=terminal,
@@ -200,12 +207,11 @@ class Event(EventTree):
             file_path=kwargs.get("file_path", file_path),
             **kwargs,
         )
-        self.signature = self.signature + " @ "
+        # Set attributes
+        self.signature = self.signature + " @"
         self.event_name: Optional[str] = None
         self.function: Optional[Callable[..., Optional[Awaitable[None]]]] = None
-        self.is_coroutine: Optional[bool] = None
-
-        check_kwargs(kwargs)
+        self.is_coroutine: bool
 
     def bind(
         self,
@@ -213,7 +219,7 @@ class Event(EventTree):
         node_name: Optional[str] = None,
         oid: Optional[int] = None,
         oids: Optional[list[int]] = None,
-        **kwargs: Any,
+        **kwargs: Any,  # IMPLEMENT: Overriding attributes/erroring if overriding
     ) -> Callable[[Callable[..., Optional[Awaitable[None]]]], Any]:
         if event_name not in events_list:
             raise ValueError(f"`{event_name}` is not a valid event.")
@@ -236,8 +242,8 @@ class Event(EventTree):
             self.is_coroutine = iscoroutinefunction(function)
 
         self.event_name = event_name
-        self.name = self.signature + self.event_name
-        self.register_event(event_name, self)
+        self.signature = self.signature + f"{self.priority} " + self.event_name
+        self.register_event(self)
         return decorator
 
     def has(self, event_name: str) -> bool:
@@ -248,10 +254,10 @@ class Event(EventTree):
         # of the same `event_name` as this overrides the `fire` method of `EventTree`
         if not self.enabled:
             return
-        if not self.function:
+        if not callable(self.function):
             raise IndexError(
                 f"Event {self.event_name} from file {self.origin} not bound "
-                f"to any function but was called."
+                f"to any valid function but was called."
             )
         if iscoroutinefunction(self.function):
             await self.function(*args, **kwargs)
@@ -264,21 +270,17 @@ class Event(EventTree):
         return self.fire(*args, **kwargs)
 
 
-def get_event_trees(module: ModuleType) -> tuple[EventTree]:
-    """From a module, get all defined, non-parented `EventTree`.
-
-    Args:
-        module (ModuleType): The module to search.
-
-    Returns:
-        tuple[EventTree]: Tuple of the valid `EventTree` objects.
-    """
+def get_event_trees(module: ModuleType, roots_only: bool = True) -> tuple[EventTree]:
     variables = dir(module)
     event_containers = []
+    if "_no_import" in variables:
+        return tuple()
     for variable in variables:
         if variable.startswith("__"):
             continue
         value = getattr(module, variable)
         if isinstance(value, EventTree) and value.parent is None:
+            if roots_only and value.parent is not None:
+                continue
             event_containers.append(value)
     return tuple(event_containers)
