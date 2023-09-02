@@ -13,7 +13,8 @@
             {
                 "label": "Launch Bot",
                 "type": "shell",
-                "command": "poetry run run.py"
+                "command": "poetry run run.py",
+                "problemMatcher": [ ]
             }
         ]
     },
