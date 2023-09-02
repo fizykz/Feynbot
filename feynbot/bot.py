@@ -6,6 +6,7 @@ import inspect
 
 # Application
 import discord
+from numpy import stack
 from rich.console import Console
 from rich.traceback import install
 
@@ -16,16 +17,16 @@ from Feynbot.handler import Handler
 install()
 
 
-class Feynbot(Handler, discord.Client):
-    def __init__(self, token: str, *args, **kwargs) -> None:
+class Feynbot(discord.Client, Handler):
+    def __init__(self, token: str, **kwargs) -> None:
         # Arguments & KW Arguments
         self.name = kwargs.pop("name", "Feynbot")
         self.token_public = kwargs.pop("token_public", None)
         self.token_app = kwargs.pop("token_app", None)
         self.references = kwargs.pop("references", {})
         self.prefix = kwargs.pop("prefix", ">")
-        self.events_directory = kwargs.get("events_directory")
-        self.commands_directory = kwargs.get("commands_directory")
+        self.events_directory: str = kwargs.pop("events_directory")
+        self.commands_directory: str = kwargs.pop("commands_directory")
         self.token = token
         kwargs["max_messages"] = kwargs.get("max_messages", 1000)
         kwargs["intents"] = kwargs.get("intents", {})
@@ -39,14 +40,17 @@ class Feynbot(Handler, discord.Client):
             ),
         )
 
-        # Set Up
+        # Set Up Console
         self.console = Console()
         os.system("cls" if os.name == "nt" else "clear")
+        self.print = self.console.print
+        self.log = self.console.log
         self.print("[bold green]Feynbot is starting...[/bold green]")
-        kwargs["intents"] = discord.Intents(**kwargs["intents"])
 
         # Pass to super
-        super().__init__(self, *args, **kwargs)
+        kwargs["intents"] = discord.Intents(**kwargs["intents"])
+        discord.Client.__init__(self, **kwargs)
+        Handler.__init__(self, self, self.events_directory, self.commands_directory)
 
     # Async Methods
     def addTask(self, coro) -> None:
@@ -63,20 +67,13 @@ class Feynbot(Handler, discord.Client):
         return function(*args, **kwargs)
 
     # Logging
-    def print(self, *args, **kwargs):
-        self.console.print(*args, **kwargs)
+    def error(self, message: str, stack_offset: int = 2):
+        self.log(f"[bold red]ERROR: {message}[/bold red]", _stack_offset=stack_offset)
 
-    def log(self, *args, **kwargs):
-        self.console.log(*args, **kwargs)
-
-    def log_green(self, message: str):
-        self.console.print(f"[bold green]{message}[/bold green]")
-
-    def error(self, message: str):
-        self.console.print(f"[bold red]ERROR: {message}[/bold red]")
-
-    def warning(self, message: str):
-        self.console.print(f"[bold orange]WARNING: {message}[/bold orange]")
+    def warning(self, message: str, stack_offset: int = 2):
+        self.log(
+            f"[bold orange]WARNING: {message}[/bold orange]", _stack_offset=stack_offset
+        )
 
     # Methods
     def to_ids(self, *args) -> list[int]:
