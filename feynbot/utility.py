@@ -6,13 +6,7 @@ import importlib.util
 from types import ModuleType
 from typing import Any, Optional
 
-
-class InvalidKwarg(Exception):
-    """Raised when an invalid keyword argument is passed to a function."""
-
-    def __init__(self, kwargs) -> None:
-        message = f"Invalid keyword argument(s) passed:\n{kwargs}"
-        super().__init__(message)
+from Feynbot.errors import InvalidKwarg
 
 
 def check_kwargs(kwargs: dict[str, Any]) -> None:
